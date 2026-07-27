@@ -1,0 +1,61 @@
+# 🗺️ SPOT — Day 1: Environment Setup
+
+**Date:** July 27, 2026  
+**Goal:** Get PostgreSQL installed, project structure created, and FastAPI server running.  
+**Status:** ✅ COMPLETE
+
+---
+
+## 📚 What I Learned Today
+
+### 1. What is PostgreSQL?
+A database that stores your app's data permanently on your hard drive. Even when the computer restarts, data survives. It's like a super-powered Excel spreadsheet that can handle millions of rows and multiple users at once.
+
+### 2. What is a Port?
+A door number on your computer. Each program gets its own port so they don't conflict:
+- PostgreSQL → port **5432**
+- FastAPI/uvicorn → port **8000**
+- React → port **3000**
+
+`localhost:8000` means "knock on door 8000 on this computer."
+
+### 3. What is a Virtual Environment (venv)?
+An isolated Python workspace just for this project. Packages installed here don't affect other Python projects on your computer. Keeps everything clean and separate.
+
+### 4. What is FastAPI?
+A Python web framework. It lets your Python code talk to the internet — receives requests, processes them, sends responses back. Think of it as the restaurant kitchen.
+
+### 5. What is Uvicorn?
+The server that runs FastAPI. It's the waiter — takes customer orders (HTTP requests) to the kitchen (FastAPI) and delivers food back (responses).
+
+### 6. Python Packages Installed
+
+| Package | Purpose | Analogy |
+|---------|---------|---------|
+| `fastapi` | Web framework | The kitchen |
+| `uvicorn` | Server runner | The waiter |
+| `sqlalchemy` | Python-to-SQL translator | Interpreter |
+| `psycopg2-binary` | Connects Python to PostgreSQL | Phone line |
+| `python-jose` | Creates & verifies JWT tokens | ID card maker |
+| `passlib[bcrypt]` | Password hashing | Lock scrambler |
+| `python-multipart` | Handles file uploads | Mailroom clerk |
+
+---
+
+## 💻 Commands I Ran Today
+
+### Install PostgreSQL on Windows
+- Downloaded installer from: https://www.postgresql.org/download/windows/
+- Port: **5432** (default)
+- Password set: `spotpass123`
+- Stack Builder: **Cancelled** (not needed)
+
+### Create Database
+```powershell
+# Connect to PostgreSQL
+& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres
+# Enter password: spotpass123
+
+# Inside psql:
+CREATE DATABASE spotdb;
+\q
