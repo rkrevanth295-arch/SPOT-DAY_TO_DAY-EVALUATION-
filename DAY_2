@@ -1,4 +1,4 @@
-# DAY 2 — Database Connection & User Model
+# DAY 2 — Database Connection & User Model.
 
 **Date:** July 29, 2026
 **Goal:** Connect FastAPI to PostgreSQL and create the User table.
