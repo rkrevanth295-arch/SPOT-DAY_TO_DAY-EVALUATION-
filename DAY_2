@@ -1,0 +1,138 @@
+# DAY 2 — Database Connection & User Model
+
+**Date:** July 29, 2026
+**Goal:** Connect FastAPI to PostgreSQL and create the User table.
+**Status:** ✅ COMPLETE
+
+---
+
+## What I Learned Today
+
+### 1. What is SQLAlchemy?
+A Python library that translates Python code into SQL. Instead of writing raw SQL queries, I write Python classes and methods. SQLAlchemy converts them to SQL and sends them to PostgreSQL.
+
+### 2. What is an Engine?
+The core connection between Python and PostgreSQL. Think of it as the phone line. Without it, Python and PostgreSQL can't talk to each other.
+
+```python
+engine = create_engine("postgresql://spotuser:spotpass123@localhost:5432/spotdb")
+3. What is a Session?
+One conversation with the database. You open a session, do your work (query, insert, update), then close it. Like making a phone call — you dial, talk, hang up.
+
+python
+SessionLocal = sessionmaker(bind=engine)
+4. What is a Model?
+A Python class that defines what a database table looks like. Each class = one table. Each attribute = one column.
+
+python
+class User(Base):
+    __tablename__ = "users"
+    id = Column(...)
+    username = Column(...)
+    email = Column(...)
+5. What is Base.metadata.create_all()?
+A command that reads all your models and creates the actual tables in PostgreSQL. If a table already exists, it skips it. Safe to run multiple times.
+
+6. Database Permissions (GRANT)
+PostgreSQL users need explicit permission to create tables. The postgres superuser has all permissions by default, but spotuser needed to be granted access:
+
+sql
+GRANT ALL ON SCHEMA public TO spotuser;
+7. The Users Table Structure
+Column	Type	Purpose	Example
+id	UUID	Unique identifier	a1b2c3d4-...
+username	String(50)	User's display name	rahul123
+email	String(100)	User's email	rahul@gmail.com
+hashed_password	String	Scrambled password (never plain text!)	$2b$12$abc...
+role	String(10)	"user" or "admin"	user
+is_active	Boolean	Is the account active?	true
+created_at	DateTime	When they signed up	Auto-generated
+Files Created Today
+app/database.py
+The connection setup file. Contains:
+
+DATABASE_URL — the address of the database
+
+engine — the actual connection
+
+SessionLocal — factory for creating sessions
+
+Base — foundation class for all models
+
+get_db() — safely opens and closes database sessions
+
+app/models.py
+Defines the User class that maps to the users table in PostgreSQL.
+
+app/main.py (Updated)
+Added imports for database and models, and calls Base.metadata.create_all() to auto-create tables when the server starts.
+
+Commands I Ran Today
+Create database.py
+powershell
+notepad app\database.py
+Pasted the database connection code.
+
+Create models.py
+powershell
+notepad app\models.py
+Pasted the User model code.
+
+Update main.py
+powershell
+notepad app\main.py
+Replaced with code that connects to the database and creates tables.
+
+Fix permissions (in pgAdmin Query Tool)
+sql
+GRANT ALL ON SCHEMA public TO spotuser;
+GRANT ALL PRIVILEGES ON DATABASE spotdb TO spotuser;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO spotuser;
+Run the server
+powershell
+cd ~/spot-app/backend
+.\venv\Scripts\Activate
+uvicorn app.main:app --reload
+Test in browser
+Opened http://127.0.0.1:8000 → saw {"message":"SPOT is alive! Database connected."}
+
+Verify table exists
+Opened pgAdmin → Databases → spotdb → Schemas → public → Tables → users ✅
+
+Errors I Hit & How I Fixed Them
+Error 1: permission denied for schema public
+text
+psycopg2.errors.InsufficientPrivilege: permission denied for schema public
+Fix: Opened pgAdmin Query Tool, ran GRANT commands to give spotuser permission to create tables.
+
+Error 2: uvicorn not recognized
+text
+uvicorn : The term 'uvicorn' is not recognized
+Fix: I was in the wrong folder. Had to cd ~/spot-app/backend and activate venv first.
+
+Project Structure After Day 2
+text
+spot-app/
+├── LEARN.md
+└── backend/
+    ├── venv/
+    └── app/
+        ├── __init__.py
+        ├── main.py          ← Updated: connects to DB & creates tables
+        ├── database.py      ← NEW: SQLAlchemy connection setup
+        └── models.py        ← NEW: User table definition
+Key Takeaways — Day 2
+SQLAlchemy translates Python to SQL — I write Python, it writes the SQL
+
+Models = Database Tables — One Python class per table
+
+Sessions = Conversations — Open, use, close
+
+create_all() auto-creates tables — No manual SQL needed
+
+PostgreSQL users need permissions — Use GRANT to give access
+
+Always activate venv — Packages only exist inside the virtual environment
+
+pgAdmin Query Tool is useful for running raw SQL when needed
+
