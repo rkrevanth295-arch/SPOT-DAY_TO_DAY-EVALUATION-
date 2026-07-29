@@ -53,7 +53,7 @@ The connection setup file. Contains:
 
 DATABASE_URL — the address of the database
 
-engine — the actual connection
+engine — the actual connection.
 
 SessionLocal — factory for creating sessions
 
