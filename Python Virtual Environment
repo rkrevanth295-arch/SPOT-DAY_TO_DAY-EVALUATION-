@@ -1,1 +1,4 @@
 ,
+python -m venv venv                     # Create virtual environment
+.\venv\Scripts\Activate                 # Activate it (Windows PowerShell)
+# Terminal now shows (venv) in green
