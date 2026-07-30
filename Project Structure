@@ -1,1 +1,7 @@
  m
+cd ~                                    # Go to home folder
+mkdir spot-app                          # Create project folder
+cd spot-app                             # Enter project folder
+git init                                # Initialize git tracking
+mkdir backend                           # Create backend folder
+cd backend                              # Enter backend folder
