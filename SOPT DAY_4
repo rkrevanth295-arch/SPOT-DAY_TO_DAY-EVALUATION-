@@ -1,0 +1,303 @@
+# 🗺️ SPOT — Complete Build Log
+
+**Start Date:** July 27, 2026  
+**Current Progress:** 50% — Backend Complete  
+**Goal:** Launch with 100 users by October 31, 2026
+
+---
+
+## 📊 Tech Stack Covered So Far
+
+| Layer | Technology | Used For | Status |
+|-------|------------|----------|--------|
+| **Backend** | FastAPI | API framework, routing | ✅ |
+| **Backend** | Python 3.14 | Core language | ✅ |
+| **Database** | PostgreSQL 18 | Storing users, spots, saved spots | ✅ |
+| **Database** | SQLAlchemy | Python-to-SQL ORM | ✅ |
+| **Database** | psycopg2 | Direct PostgreSQL connection | ✅ |
+| **Auth** | JWT (python-jose) | Token creation & verification | ✅ |
+| **Auth** | bcrypt | Password hashing | ✅ |
+| **Auth** | HTTPBearer | Token extraction from requests | ✅ |
+| **Validation** | Pydantic | Data schemas & validation | ✅ |
+| **Server** | Uvicorn | Running the FastAPI app | ✅ |
+| **DevOps** | Git | Version control | ✅ |
+| **DevOps** | GitHub | Code hosting | ✅ |
+| **Tools** | pgAdmin | PostgreSQL GUI | ✅ |
+| **Tools** | PowerShell | Terminal on Windows | ✅ |
+
+### Still To Come
+
+| Technology | When |
+|------------|------|
+| React + TypeScript + Tailwind | Week 3-4 (Frontend) |
+| Leaflet (maps) | Week 3-4 |
+| AWS S3 (photo upload) | Day 5 |
+| Redis | Later |
+| OpenAI API + LangChain + FAISS | September |
+| Docker + GitHub Actions + AWS | Deployment |
+| Linux | Deployment |
+
+---
+
+# DAY 1 — Environment Setup
+
+**Date:** July 27, 2026  
+**Status:** ✅ Complete
+
+## What I Learned
+
+### PostgreSQL
+A database that stores data permanently. Like a super-powered Excel spreadsheet. Port 5432.
+
+### Ports
+Each program gets its own door number:
+- PostgreSQL → 5432
+- FastAPI → 8000
+- React → 3000
+
+### Virtual Environment (venv)
+Isolated Python workspace. Packages installed here don't affect other projects.
+
+### FastAPI
+Python web framework. Receives requests, returns responses. The kitchen.
+
+### Uvicorn
+Server that runs FastAPI. The waiter.
+
+### Packages Installed
+
+| Package | Purpose | Analogy |
+|---------|---------|---------|
+| fastapi | Web framework | Kitchen |
+| uvicorn | Server runner | Waiter |
+| sqlalchemy | Python-to-SQL | Interpreter |
+| psycopg2-binary | Connect to PostgreSQL | Phone line |
+| python-jose | JWT tokens | ID card maker |
+| passlib/bcrypt | Password hashing | Lock scrambler |
+| python-multipart | File uploads | Mailroom clerk |
+
+## Commands Learned
+
+```powershell
+cd ~                          # Go to home folder
+mkdir spot-app                # Create folder
+git init                      # Initialize git
+python -m venv venv           # Create virtual environment
+.\venv\Scripts\Activate       # Activate venv (Windows)
+pip install <package>         # Install Python packages
+uvicorn app.main:app --reload # Start server
+Ctrl+C                        # Stop server
+deactivate                    # Exit venv
+```
+
+---
+
+# DAY 2 — Database Connection & User Model
+
+**Date:** July 29, 2026  
+**Status:** ✅ Complete
+
+## What I Learned
+
+### Engine
+The phone line from Python to PostgreSQL. Created via `create_engine(DATABASE_URL)`.
+
+### Session
+One conversation with the database. Open → work → close.
+
+### Model
+Python class that defines a database table. Each class = one table.
+
+### Base.metadata.create_all()
+Reads all models and creates tables in PostgreSQL automatically.
+
+### Users Table Schema
+
+| Column | Type | Purpose |
+|--------|------|---------|
+| id | UUID | Unique identifier |
+| username | String(50) | Display name, unique |
+| email | String(100) | Email, unique |
+| hashed_password | String | Scrambled password |
+| role | String(10) | "user" or "admin" |
+| is_active | Boolean | Account status |
+| created_at | DateTime | Signup timestamp |
+
+## Files Created
+- `app/database.py` — Connection setup
+- `app/models.py` — User table definition
+- `app/main.py` — Updated to auto-create tables
+
+## Errors Fixed
+- `permission denied for schema public` → Ran GRANT SQL in pgAdmin
+- `uvicorn not recognized` → Was in wrong folder, needed venv activated
+
+---
+
+# DAY 3 — User Authentication
+
+**Date:** July 30, 2026  
+**Status:** ✅ Complete
+
+## What I Learned
+
+### Password Hashing (bcrypt)
+Passwords are NEVER stored as plain text. bcrypt scrambles them into unreadable strings. One-way — can't reverse it. When user logs in, we hash their input and compare hashes.
+
+### JWT (JSON Web Token)
+Digital wristband. User logs in once → gets a token → sends token with every request. No need to send password every time.
+
+### Signup Flow
+```
+User sends username + email + password
+    ↓
+Password gets hashed → stored in DB
+    ↓
+User info returned (without password)
+```
+
+### Login Flow
+```
+User sends username + password
+    ↓
+Find user → verify password hash
+    ↓
+Create JWT → return token
+```
+
+### Protected Routes
+Endpoints that require authentication. Use `get_current_user` dependency. Without valid token → 401 Unauthorized.
+
+### 401 vs 403
+- 401 Unauthorized = Not logged in (no token)
+- 403 Forbidden = Logged in but not allowed
+
+## Files Created
+- `app/auth.py` — Hashing, JWT, user extraction
+- `app/schemas.py` — UserCreate, UserLogin, UserResponse, Token
+- `app/routers/auth.py` — Signup & login endpoints
+
+## Errors Fixed
+- `email-validator not installed` → pip install email-validator
+- `passlib + bcrypt conflict` → Replaced passlib with raw bcrypt
+- `OAuth2 popup confusing` → Switched to HTTPBearer
+
+---
+
+# DAY 4 — Spot CRUD, Search, Save, Seed Script
+
+**Date:** August 3, 2026  
+**Status:** ✅ Complete  
+**Progress Jump:** 15% → 50%
+
+## What I Learned
+
+### CRUD Operations
+Create, Read, Update, Delete — the four basic operations for any resource.
+
+### Route Ordering in FastAPI
+FastAPI matches routes top-to-bottom. `/search/` must come before `/{id}` because `{id}` is a wildcard that matches anything.
+
+### ILIKE for Search
+Case-insensitive pattern matching in SQL. `ILIKE '%cafe%'` matches "Cafe", "CAFE", "cafes".
+
+### Authorization vs Authentication
+- Authentication = Who are you? (login)
+- Authorization = Are you allowed to do this? (only creator can delete their spot)
+
+### Save/Bookmark Pattern
+Many-to-many relationship. One user saves many spots. One spot saved by many users. Requires a join table (`saved_spots`).
+
+### Seed Script
+A Python script that populates the database with initial data. Useful for testing and demo.
+
+## Spots Table Schema
+
+| Column | Type | Purpose |
+|--------|------|---------|
+| id | UUID | Unique identifier |
+| user_id | UUID | Who created it |
+| name | String(100) | Spot name |
+| category | String(30) | Category (Cafes, Nature, etc.) |
+| description | String(1000) | Details about the spot |
+| latitude | Float | GPS latitude |
+| longitude | Float | GPS longitude |
+| image_url | String(500) | Photo URL (from S3 later) |
+| status | String(15) | pending/approved/rejected |
+| created_at | DateTime | When added |
+
+## SavedSpots Table
+
+| Column | Type | Purpose |
+|--------|------|---------|
+| id | UUID | Unique identifier |
+| user_id | UUID | Who saved it |
+| spot_id | UUID | Which spot was saved |
+| created_at | DateTime | When saved |
+
+## Complete API Endpoints
+
+```
+POST   /auth/signup          — Create account
+POST   /auth/login           — Get JWT token
+GET    /users/me             — Current user (protected)
+
+POST   /spots/               — Create spot (protected)
+GET    /spots/               — List all (filter by ?category=)
+GET    /spots/search/?q=     — Search by name/description/category
+GET    /spots/saved/mine     — My saved spots (protected)
+GET    /spots/{id}           — Get one spot
+PUT    /spots/{id}           — Update (protected, creator only)
+DELETE /spots/{id}           — Delete (protected, creator only)
+POST   /spots/{id}/save      — Save to collection (protected)
+DELETE /spots/{id}/save      — Remove from collection (protected)
+```
+
+## Files Created/Updated
+- `app/models.py` — Added Spot + SavedSpot classes
+- `app/schemas.py` — Added SpotCreate, SpotResponse, SavedSpotResponse
+- `app/routers/spots.py` — 10 endpoints, full CRUD + search + save
+- `app/main.py` — Added spots router
+- `seed.py` — 15 Hyderabad spots + admin user
+
+## Errors Fixed
+- `models.Spot not found` → Spot class missing from models.py
+- `SpotResponse not found` → Schemas missing
+- Fake token in Authorize → Logout, re-login, paste real token
+- `q=q%3Dcafe` → Just type `cafe` in search field, not `q=cafe`
+- PUT/DELETE not showing → Route order fixed
+- 404 on delete → Used example ID instead of real spot ID
+
+## Categories of Seeded Spots
+Cafes, Food, Nature, Study, Sunset, Hidden Gem, Adventure
+
+---
+
+## 📁 Current Project Structure
+
+```
+spot-app/
+├── LEARN.md
+├── .git/
+├── seed.py
+└── backend/
+    ├── venv/
+    ├── requirements.txt
+    └── app/
+        ├── __init__.py
+        ├── main.py
+        ├── database.py
+        ├── models.py
+        ├── schemas.py
+        ├── auth.py
+        └── routers/
+            ├── __init__.py
+            ├── auth.py
+            └── spots.py
+```
+
+---
+
+## 🔜 Next: Day 5 — Photo Upload (AWS S3)
+
+Target: 60% complete.
