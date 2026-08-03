@@ -1,0 +1,77 @@
+
+### 4. HTTPBearer vs OAuth2PasswordBearer
+- OAuth2PasswordBearer — adds complex OAuth2 form to Swagger docs
+- HTTPBearer — simpler, just a token text box
+- We switched from OAuth2 to HTTPBearer for cleaner /docs
+
+### 5. Pydantic Schemas for Validation
+
+| Schema | Purpose | Fields |
+|--------|---------|--------|
+| UserCreate | Signup input | username, email, password |
+| UserLogin | Login input | username, password |
+| UserResponse | User output (no password!) | id, username, email, role, is_active, created_at |
+| Token | Login output | access_token, token_type |
+
+Schemas act as contracts — they validate incoming data and format outgoing data.
+
+---
+
+## Files Created
+
+### `app/auth.py`
+Core security file. Contains:
+- `hash_password()` — scrambles passwords with bcrypt
+- `verify_password()` — checks plain vs hashed password
+- `create_access_token()` — generates JWT with expiry
+- `get_current_user()` — dependency that extracts user from token
+
+### `app/schemas.py`
+Pydantic models for data validation:
+- `UserCreate` — validates signup input
+- `UserLogin` — validates login input  
+- `UserResponse` — formats user output (hides password)
+- `Token` — formats JWT token response
+
+### `app/routers/__init__.py`
+Empty file. Makes `routers` a Python package.
+
+### `app/routers/auth.py`
+API endpoints:
+- `POST /auth/signup` — creates user, returns 201
+- `POST /auth/login` — validates credentials, returns JWT
+
+### `app/main.py` (Updated)
+Added:
+- Auth router import and inclusion
+- `GET /users/me` — protected route, returns current user
+
+---
+
+## Key Concepts
+
+| Concept | Meaning |
+|---------|---------|
+| Hashing | One-way scrambling — can't reverse |
+| bcrypt | Industry standard hashing algorithm |
+| JWT | Digital wristband — proves identity |
+| Bearer token | Token format: `Bearer eyJ...` |
+| Protected route | Endpoint requiring authentication |
+| Dependency injection | `Depends(get_current_user)` — FastAPI auto-injects user |
+| 401 Unauthorized | Missing or invalid token |
+| 201 Created | Successful resource creation |
+
+---
+
+## Commands Used
+
+```powershell
+notepad app\auth.py              # Create auth helpers
+notepad app\schemas.py           # Create validation schemas
+mkdir app\routers                # Create routers folder
+notepad app\routers\__init__.py  # Make routers a package
+notepad app\routers\auth.py      # Create auth endpoints
+notepad app\main.py              # Update with auth router
+pip install email-validator      # Fix missing dependency
+pip uninstall passlib -y         # Remove conflicting package
+pip install bcrypt==4.0.1        # Install bcrypt directly
