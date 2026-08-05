@@ -1,0 +1,20 @@
+Day 5: S3 photo upload working — 60% complete
+
+- Created AWS S3 bucket (Mumbai region)
+- Set up IAM user with S3 permissions
+- Installed boto3, built upload service
+- POST /upload/spot/{id} endpoint working
+- Photos stored with public-read ACL
+- Public URL accessible by anyone
+- Tested with friend — they could see the image
+
+Backend now has:
+✅ Auth (signup, login, JWT)
+✅ Spot CRUD (create, read, update, delete)
+✅ Search + category filter
+✅ Save/unsave spots
+✅ 15 Hyderabad spots seeded
+✅ Photo upload to AWS S3
+
+Stack: FastAPI, PostgreSQL, SQLAlchemy, AWS S3, Python
+Next: React frontend with Leaflet maps
